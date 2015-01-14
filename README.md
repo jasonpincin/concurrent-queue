@@ -5,7 +5,7 @@
 [![Coverage Status](https://coveralls.io/repos/jasonpincin/concurrent-queue/badge.png?branch=master)](https://coveralls.io/r/jasonpincin/concurrent-queue?branch=master)
 [![Davis Dependency Status](https://david-dm.org/jasonpincin/concurrent-queue.png)](https://david-dm.org/jasonpincin/concurrent-queue)
 
-Fifo queue of tasks with concurrency control
+Fifo queue of concurrency control
 
 ## example
 
