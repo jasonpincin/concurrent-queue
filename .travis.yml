@@ -1,0 +1,7 @@
+language: node_js
+node_js:
+    - "0.10"
+before_script:
+    - npm install
+    - npm install -g coveralls@2.10.0
+script: npm run travis-test
