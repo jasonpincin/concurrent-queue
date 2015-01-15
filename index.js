@@ -1,13 +1,28 @@
-var assign = require('object-assign'),
-    assert = require('assert')
+var assign  = require('object-assign'),
+    assert  = require('assert'),
+    onerr   = require('on-error'),
+    Promise = require('promise-polyfill')
 
 module.exports = function (options) {
     var pending    = [],
         processing = []
 
     function cq (task, cb) {
-        pending.push({task: task, cb: cb})
+        cb = cb || function () {}
         setImmediate(drain)
+        return new Promise(function (resolve, reject) {
+            pending.push({
+                task: task,
+                resolve: function () {
+                    cb.apply(undefined, [null].concat(Array.prototype.slice.call(arguments, 0)))
+                    resolve.apply(undefined, arguments)
+                },
+                reject: function (err) {
+                    cb(err)
+                    reject(err)
+                }
+            })
+        })
     }
     cq.process = function (processor) {
         assert(typeof processor === 'function', 'process requires a processor function')
@@ -38,11 +53,28 @@ module.exports = function (options) {
         while (cq.processor && pending.length > 0 && processing.length < cq.options.concurrency) (function () {
             var item = pending.shift()
             processing.push(item)
-            cq.processor(item.task, function () {
+
+            function reject (err) {
                 processing.splice(processing.indexOf(item), 1)
-                if (item.cb) item.cb.apply(undefined, arguments)
+                item.reject(err)
                 setImmediate(drain)
-            })
+            }
+            function resolve () {
+                processing.splice(processing.indexOf(item), 1)
+                item.resolve.apply(undefined, arguments)
+                setImmediate(drain)
+            }
+            if (cq.processor.length !== 1) cq.processor(item.task, onerr(reject, resolve))
+            else {
+                try {
+                    var p = cq.processor(item.task)
+                }
+                catch (err) {
+                    return reject(err)
+                }
+                if (p && typeof p.then === 'function') p.then(resolve, reject)
+                else resolve(p)
+            }
         })()
     }
 

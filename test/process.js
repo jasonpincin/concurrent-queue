@@ -1,7 +1,10 @@
-var test = require('tape'),
-    cq   = require('..')
+var test         = require('tape'),
+    cq           = require('..'),
+    Promise      = require('promise-polyfill')
+if (!setImmediate) setImmediate = process.nextTick
 
-test('process', function (t) {
+test('process (cb)', function (t) {
+    t.plan(4)
     var q = cq()
     function processor (task, cb) {
         cb()
@@ -18,6 +21,44 @@ test('process', function (t) {
     setImmediate(function () {
 
         t.equal(q.items.length, 0, 'tasks completed as queued with processor already defined')
-        t.end()
+    })
+})
+
+test('process (promise)', function (t) {
+    t.plan(1)
+    var q = cq({ concurrency: 2 }).process(function (task) {
+        return new Promise(function (resolve, reject) {
+            resolve()
+        })
+    })
+
+    Promise.all([
+        q('task 1'),
+        q('task 2'),
+        q('task 3')
+    ]).then(function () {
+        t.equal(q.items.length, 0, 'all tasks complete with promisy processor')
+    })
+})
+
+test('process (sync)', function (t) {
+    t.plan(5)
+    var callCount = 0
+    var q = cq().process(function (task) {
+        callCount++
+        if (callCount === 3) throw new Error('task 3 failed')
+        else return task
+    })
+
+    q('task 1', function (err, data) {
+        t.false(err, 'task 1 should complete without error')
+        t.equal(data, 'task 1', 'task 1 should complete with expected data')
+    })
+    q('task 2', function (err, data) {
+        t.false(err, 'task 2 should complete without error')
+        t.equal(data, 'task 2', 'task 1 should complete with expected data')
+    })
+    q('task 3', function (err) {
+        t.true(err, 'task 3 should generate an error')
     })
 })

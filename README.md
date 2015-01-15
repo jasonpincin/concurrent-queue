@@ -24,6 +24,23 @@ for (var i = 1; i <= 10; i++) queue('task '+i, function (err, task) {
 })
 ```
 
+or with promises:
+
+```
+var cq      = require('concurrent-queue')
+
+var queue = cq({ concurrency: 2 }).process(function (task) {
+    return new Promise(function (resolve, reject) {
+        console.log(task + ' started')
+        setTimeout(resolve.bind(undefined, task), 1000)
+    })
+})
+
+for (var i = 1; i <= 10; i++) queue('task '+i).then(function (task) {
+    console.log(task + ' done')
+})
+```
+
 ## api
 
 ```
@@ -39,14 +56,21 @@ how many items in the queue will be processed concurrently. The default `concurr
 ### queue(item [, cb])
 
 Push an item to the queue. Once the item has been processed, the optional callback will 
-be executed with arguments determined by the processor.
+be executed with arguments determined by the processor. 
+
+Returns a promise that will be resolved or rejected once the item is processed.
 
 ### queue.process(processor)
 
-Configure the processor function with signature `function (item, cb)`. This function is 
-invoked as concurrency allows, providing a queued `item`, and a `cb` that should be executed 
-once the processor has finished with the item. The arguments passed to the `cb` will be 
-passed to the callback provided at queue-time.
+Configure the processor function with signature `function (item [, cb])`. This function is 
+invoked as concurrency allows, providing a queued `item` to be acted upon. If the processor 
+function signature included a callback, an error-first style callback will be passed which 
+should be executed upon completion. If no callback is provided in the function signature, and 
+the processor function returns a `Promise`, the item will be considered complete once the promise 
+is resolved/rejected. If neither a callback is accepted, nor a promise returned, the function 
+will be treated as a synchronous function, and it's return value (or thrown exception) will be 
+passed to the original `queue` callback or promise (resolved if data returned, rejected if 
+error thrown).
 
 This function returns a reference to `queue`.
 
