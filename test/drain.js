@@ -1,5 +1,6 @@
-var test = require('tape'),
-    cq   = require('..')
+var test         = require('tape'),
+    cq           = require('..'),
+    setImmediate = require('set-immediate-shim')
 
 function processorImmediate (task, cb) {
     cb()

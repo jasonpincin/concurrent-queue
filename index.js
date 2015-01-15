@@ -1,7 +1,8 @@
-var assign  = require('object-assign'),
-    assert  = require('assert'),
-    onerr   = require('on-error'),
-    Promise = require('promise-polyfill')
+var assign       = require('object-assign'),
+    assert       = require('assert'),
+    onerr        = require('on-error'),
+    Promise      = require('promise-polyfill'),
+    setImmediate = require('set-immediate-shim')
 
 module.exports = function (options) {
     var pending    = [],

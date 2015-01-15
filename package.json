@@ -43,6 +43,7 @@
   "dependencies": {
     "object-assign": "^2.0.0",
     "on-error": "^1.1.0",
-    "promise-polyfill": "^1.1.6"
+    "promise-polyfill": "^1.1.6",
+    "set-immediate-shim": "^1.0.0"
   }
 }
