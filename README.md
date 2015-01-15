@@ -27,7 +27,7 @@ for (var i = 1; i <= 10; i++) queue('task '+i, function (err, task) {
 or with promises:
 
 ```
-var cq      = require('concurrent-queue')
+var cq = require('concurrent-queue')
 
 var queue = cq({ concurrency: 2 }).process(function (task) {
     return new Promise(function (resolve, reject) {
