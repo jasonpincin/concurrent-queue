@@ -35,15 +35,15 @@ module.exports = function (options) {
     cq.options = assign({ concurrency: Infinity }, options)
 
     Object.defineProperties(cq, {
-        items: { get: function () {
+        items: { enumerable: true, get: function () {
             return cq.processing.concat(cq.pending)
         }},
-        pending: { get: function () {
+        pending: { enumerable: true, get: function () {
             return pending.map(function (item) {
                 return item.task
             })
         }},
-        processing: { get: function () {
+        processing: { enumerable: true, get: function () {
             return processing.map(function (item) {
                 return item.task
             })
