@@ -43,7 +43,7 @@ for (var i = 1; i <= 10; i++) queue('task '+i).then(function (task) {
 
 ## api
 
-```
+```javascript
 var cq = require('concurrent-queue')
 ```
 
