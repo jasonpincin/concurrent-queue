@@ -9,7 +9,7 @@ Fifo queue with concurrency control
 
 ## example
 
-```
+```javascript
 var cq = require('concurrent-queue')
 
 var queue = cq({ concurrency: 2 }).process(function (task, cb) {
@@ -26,7 +26,7 @@ for (var i = 1; i <= 10; i++) queue('task '+i, function (err, task) {
 
 or with promises:
 
-```
+```javascript
 var cq = require('concurrent-queue')
 
 var queue = cq({ concurrency: 2 }).process(function (task) {
