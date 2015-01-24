@@ -65,7 +65,7 @@ module.exports = function (options) {
                 item.resolve.apply(undefined, arguments)
                 setImmediate(drain)
             }
-            if (cq.processor.length !== 1) cq.processor(item.task, onerr(reject, resolve))
+            if (cq.processor.length !== 1) cq.processor(item.task, onerr(reject).otherwise(resolve))
             else {
                 try {
                     var p = cq.processor(item.task)
