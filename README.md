@@ -89,9 +89,11 @@ An array of items waiting to be processed.
 
 ## testing
 
-`npm test [--dot | --spec] [--coverage]`
+`npm test [--dot | --spec] [--coverage | --grep=pattern]`
 
-Alternatively, only run test files matching a certain pattern by prefixing the command 
-with `grep=pattern`. Example: `grep=init npm test`
+Specifying `--dot` or `--spec` will change the output from the default TAP style. 
+Specifying `--coverage` will print a text coverage summary to the terminal after 
+tests have ran, while `--pattern` will only run the test files that match the given 
+pattern.
 
-Open an html coverage report after running tests with `npm run view-cover`
+Open an html coverage report with `npm run view-cover`.

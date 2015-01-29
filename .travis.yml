@@ -4,4 +4,4 @@ node_js:
 before_script:
     - npm install
     - npm install -g coveralls@2.10.0
-script: npm run travis-test
+script: make travis-test
