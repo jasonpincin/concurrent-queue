@@ -24,9 +24,9 @@ lint:
 
 test: node_modules
 	$(if $(npm_config_grep), @echo "Running test files that match pattern: $(npm_config_grep)\n",)
-	$(if $(filter tap, $(reporter)), @find ./test -name "*.js" -type f -maxdepth 1 | grep ""$(npm_config_grep) | xargs $(BIN)/istanbul cover --report lcovonly --print none $(BIN)/tape --)
-	$(if $(filter dot, $(reporter)), @find ./test -name "*.js" -type f -maxdepth 1 | grep ""$(npm_config_grep) | xargs $(BIN)/istanbul cover --report lcovonly --print none $(BIN)/tape -- | $(BIN)/tap-dot)
-	$(if $(filter spec, $(reporter)), @find ./test -name "*.js" -type f -maxdepth 1 | grep ""$(npm_config_grep) | xargs $(BIN)/istanbul cover --report lcovonly --print none $(BIN)/tape -- | $(BIN)/tap-spec)
+	$(if $(filter tap, $(reporter)), @find ./test -maxdepth 1 -name "*.js" -type f | grep ""$(npm_config_grep) | xargs $(BIN)/istanbul cover --report lcovonly --print none $(BIN)/tape --)
+	$(if $(filter dot, $(reporter)), @find ./test -maxdepth 1 -name "*.js" -type f | grep ""$(npm_config_grep) | xargs $(BIN)/istanbul cover --report lcovonly --print none $(BIN)/tape -- | $(BIN)/tap-dot)
+	$(if $(filter spec, $(reporter)), @find ./test -maxdepth 1 -name "*.js" -type f | grep ""$(npm_config_grep) | xargs $(BIN)/istanbul cover --report lcovonly --print none $(BIN)/tape -- | $(BIN)/tap-spec)
 ifdef npm_config_coverage
 	@echo
 	@$(BIN)/istanbul report text | grep -v "Using reporter" | grep -v "Done"
