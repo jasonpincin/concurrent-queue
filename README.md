@@ -94,4 +94,4 @@ An array of items waiting to be processed.
 Alternatively, only run test files matching a certain pattern by prefixing the command 
 with `grep=pattern`. Example: `grep=init npm test`
 
-Open an html coverage report after running tests with `npm run view-cover` or `npm run vc`
+Open an html coverage report after running tests with `npm run view-cover`
