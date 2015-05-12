@@ -12,7 +12,7 @@ Fifo queue with concurrency control
 ```javascript
 var cq = require('concurrent-queue')
 
-var queue = cq({ concurrency: 2 }).process(function (task, cb) {
+var queue = cq().process({ concurrency: 2 }, function (task, cb) {
     console.log(task + ' started')
     setTimeout(function () {
         cb(null, task)
@@ -29,7 +29,7 @@ or with promises:
 ```javascript
 var cq = require('concurrent-queue')
 
-var queue = cq({ concurrency: 2 }).process(function (task) {
+var queue = cq().process({ concurrency: 2 }, function (task) {
     return new Promise(function (resolve, reject) {
         console.log(task + ' started')
         setTimeout(resolve.bind(undefined, task), 1000)
@@ -49,9 +49,7 @@ var cq = require('concurrent-queue')
 
 ### var queue = cq(options)
 
-Create a queue. The options object may contain a `concurrency` property that determines 
-how many items in the queue will be processed concurrently. The default `concurrency` is 
-`Infinity`.
+Create a queue. 
 
 ### queue(item [, cb])
 
@@ -60,12 +58,18 @@ be executed with arguments determined by the processor.
 
 Returns a promise that will be resolved or rejected once the item is processed.
 
-### queue.process(processor)
+### queue.process([options, ] processor)
 
-Configure the processor function with signature `function (item [, cb])`. This function is 
-invoked as concurrency allows, providing a queued `item` to be acted upon. If the processor 
-function signature included a callback, an error-first style callback will be passed which 
-should be executed upon completion. If no callback is provided in the function signature, and 
+Configure the queue's `processor` function, to be invoked as concurrency allows with a queued item 
+to be acted upon.
+
+The optional `options` argument should be an object. It may contain a `concurrency` property that 
+determines how many items in the queue will be processed concurrently. The default `concurrency` is 
+`Infinity`.
+
+The `processor` argument should be a function with signature `function (item [, cb])`.  If 
+the processor function signature included a callback, an error-first style callback will be passed 
+which should be executed upon completion. If no callback is provided in the function signature, and 
 the processor function returns a `Promise`, the item will be considered complete once the promise 
 is resolved/rejected. If neither a callback is accepted, nor a promise returned, the function 
 will be treated as a synchronous function, and it's return value (or thrown exception) will be 
@@ -85,6 +89,15 @@ An array of items currently being processed.
 ### queue.pending
 
 An array of items waiting to be processed.
+
+### queue.concurrency
+
+An integer property representing the number of concurrent queue items that will be processed. This 
+defaults to `Infinity`, but may be re-assigned. An integer value must be assigned to this property. 
+This property may also be set by passing an options object to the `process` function (above) and 
+specifying `concurrency` in that options object. To change concurrency after `process` is called, 
+the new value must be assigned to this property. Setting this property to `0` will halt the queue 
+(once all in-process items are complete), while setting it to `Infinity` removes all limits.
 
 
 ## testing

@@ -11,7 +11,7 @@ function processorFast (task, cb) {
 }
 
 test('drain infinite concurrency and immediate processor', function (t) {
-    var q = cq({ concurrency: Infinity })
+    var q = cq()
 
     q('task 1')
     q('task 2')
@@ -21,7 +21,7 @@ test('drain infinite concurrency and immediate processor', function (t) {
     t.equal(q.pending.length, q.items.length, 'items are in pending state before processor')
     t.equal(q.processing.length, 0, 'nothing in processing state before processor')
 
-    q.process(processorImmediate)
+    q.process({ concurrency: Infinity }, processorImmediate)
     setImmediate(function () {
         t.equal(q.items.length + q.pending.length + q.processing.length, 0, 'all items processed immediately')
         t.end()
@@ -29,13 +29,13 @@ test('drain infinite concurrency and immediate processor', function (t) {
 })
 
 test('drain with concurrency of 2 and immediate processor', function (t) {
-    var q = cq({ concurrency: 2 })
+    var q = cq()
 
     q('task 1')
     q('task 2')
     q('task 3')
 
-    q.process(processorImmediate)
+    q.process({ concurrency: 2 }, processorImmediate)
     setImmediate(function () {
         t.equal(q.items.length + q.pending.length + q.processing.length, 0, 'all items processed immediately')
         t.end()
@@ -43,13 +43,13 @@ test('drain with concurrency of 2 and immediate processor', function (t) {
 })
 
 test('drain with concurrency of 2 and fast processor', function (t) {
-    var q = cq({ concurrency: 2 })
+    var q = cq()
 
     q('task 1')
     q('task 2')
     q('task 3')
 
-    q.process(processorFast)
+    q.process({ concurrency: 2 }, processorFast)
     setImmediate(function () {
         t.equal(q.pending.length, 1, '1 item pending after processor')
         t.equal(q.processing.length, 2, '2 items processing after processor')

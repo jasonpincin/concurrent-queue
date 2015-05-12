@@ -4,9 +4,11 @@ var assign       = require('object-assign'),
     Promise      = require('promise-polyfill'),
     setImmediate = require('set-immediate-shim')
 
-module.exports = function (options) {
-    var pending    = [],
-        processing = []
+module.exports = function () {
+    var pending     = [],
+        processing  = [],
+        concurrency = Infinity,
+        processor
 
     function cq (task, cb) {
         cb = cb || function () {}
@@ -25,14 +27,18 @@ module.exports = function (options) {
             })
         })
     }
-    cq.process = function (processor) {
-        assert(typeof processor === 'function', 'process requires a processor function')
-        assert(!cq.processor, 'queue processor already defined')
-        cq.processor = processor
+    cq.process = function (options, func) {
+        if (arguments.length === 1) {
+            func = options
+            options = {}
+        }
+        assert(typeof func === 'function', 'process requires a processor function')
+        assert(!processor, 'queue processor already defined')
+        concurrency = options.concurrency || Infinity
+        processor = func
         setImmediate(drain)
         return cq
     }
-    cq.options = assign({ concurrency: Infinity }, options)
 
     Object.defineProperties(cq, {
         items: { enumerable: true, get: function () {
@@ -47,11 +53,20 @@ module.exports = function (options) {
             return processing.map(function (item) {
                 return item.task
             })
+        }},
+        concurrency: { enumerable: true, get: function () {
+            return concurrency
+        }, set: function (value) {
+            if (typeof value !== 'number') throw new TypeError('concurrency must be a number')
+                concurrency = value
+        }},
+        processor: { get: function () {
+            return processor
         }}
     })
 
     function drain() {
-        while (cq.processor && pending.length > 0 && processing.length < cq.options.concurrency) (function () {
+        while (processor && pending.length > 0 && processing.length < concurrency) (function () {
             var item = pending.shift()
             processing.push(item)
 
@@ -65,10 +80,10 @@ module.exports = function (options) {
                 item.resolve.apply(undefined, arguments)
                 setImmediate(drain)
             }
-            if (cq.processor.length !== 1) cq.processor(item.task, onerr(reject).otherwise(resolve))
+            if (processor.length !== 1) processor(item.task, onerr(reject).otherwise(resolve))
             else {
                 try {
-                    var p = cq.processor(item.task)
+                    var p = processor(item.task)
                 }
                 catch (err) {
                     return reject(err)

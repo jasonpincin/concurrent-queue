@@ -3,6 +3,16 @@ var test         = require('tape'),
     Promise      = require('promise-polyfill'),
     setImmediate = require('set-immediate-shim')
 
+test('processor', function (t) {
+    t.plan(1)
+    var q = cq()
+    function processor (task, cb) {
+        cb()
+    }
+
+    t.equal(q.process(processor).processor, processor, 'processor property refers to function passed to process')
+})
+
 test('process (cb)', function (t) {
     t.plan(4)
     var q = cq()
@@ -26,7 +36,7 @@ test('process (cb)', function (t) {
 
 test('process (promise)', function (t) {
     t.plan(1)
-    var q = cq({ concurrency: 2 }).process(function (task) {
+    var q = cq().process({ concurrency: 2 }, function (task) {
         return new Promise(function (resolve, reject) {
             resolve()
         })
