@@ -1,6 +1,6 @@
 var cq = require('..')
 
-var queue = cq({ concurrency: 2 }).process(function (task, cb) {
+var queue = cq().process({ concurrency: 2 }, function (task, cb) {
     console.log(task + ' started')
     setTimeout(function () {
         cb(null, task)
