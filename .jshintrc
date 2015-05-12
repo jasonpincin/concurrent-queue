@@ -49,6 +49,8 @@
     "indent"        : 4,
     "-W058"         : true,
     "-W079"         : true,
+    "-W018"         : true,
+    "-W052"         : true,
     "predef"        : [
     ]
 }
