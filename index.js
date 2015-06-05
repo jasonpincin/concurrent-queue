@@ -1,6 +1,7 @@
 var assign       = require('object-assign'),
     assert       = require('assert'),
     onerr        = require('on-error'),
+    once         = require('once'),
     Promise      = require('promise-polyfill'),
     setImmediate = require('set-immediate-shim')
 
@@ -70,27 +71,25 @@ module.exports = function () {
             var item = pending.shift()
             processing.push(item)
 
-            function reject (err) {
+            var reject = once(function reject (err) {
                 processing.splice(processing.indexOf(item), 1)
                 item.reject(err)
                 setImmediate(drain)
-            }
-            function resolve () {
+            })
+            var resolve = once(function resolve () {
                 processing.splice(processing.indexOf(item), 1)
                 item.resolve.apply(undefined, arguments)
                 setImmediate(drain)
+            })
+
+            var p
+            try {
+                p = processor(item.task, onerr(reject).otherwise(resolve))
             }
-            if (processor.length !== 1) processor(item.task, onerr(reject).otherwise(resolve))
-            else {
-                try {
-                    var p = processor(item.task)
-                }
-                catch (err) {
-                    return reject(err)
-                }
-                if (p && typeof p.then === 'function') p.then(resolve, reject)
-                else resolve(p)
+            catch (err) {
+                return reject(err)
             }
+            if (p && typeof p.then === 'function') p.then(resolve, reject)
         })()
     }
 
