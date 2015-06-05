@@ -71,10 +71,7 @@ The `processor` argument should be a function with signature `function (item [, 
 the processor function signature included a callback, an error-first style callback will be passed 
 which should be executed upon completion. If no callback is provided in the function signature, and 
 the processor function returns a `Promise`, the item will be considered complete once the promise 
-is resolved/rejected. If neither a callback is accepted, nor a promise returned, the function 
-will be treated as a synchronous function, and it's return value (or thrown exception) will be 
-passed to the original `queue` callback or promise (resolved if data returned, rejected if 
-error thrown).
+is resolved/rejected. 
 
 This function returns a reference to `queue`.
 
