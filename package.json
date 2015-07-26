@@ -1,6 +1,6 @@
 {
   "name": "concurrent-queue",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Fifo queue with concurrency control",
   "main": "index.js",
   "scripts": {
