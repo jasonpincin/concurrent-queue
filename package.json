@@ -31,12 +31,12 @@
   },
   "contributors": [],
   "devDependencies": {
-    "istanbul": "~0.3.14",
-    "jshint": "~2.8.0",
-    "opn": "~1.0.2",
+    "eslint": "~0.24.1",
+    "istanbul": "~0.3.17",
+    "opn": "~3.0.2",
     "tap-dot": "~1.0.0",
-    "tap-spec": "~4.0.0",
-    "tape": "~4.0.0"
+    "tap-spec": "~4.0.2",
+    "tape": "~4.0.1"
   },
   "dependencies": {
     "object-assign": "~3.0.0",

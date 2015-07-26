@@ -1,0 +1,11 @@
+coverage
+node_modules
+*.log
+nohup.out
+.DS_Store
+.eslintrc
+.eslintignore
+.tern-project
+.travis.yml
+.git
+.gitignore

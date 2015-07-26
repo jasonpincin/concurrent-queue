@@ -1,6 +1,5 @@
 var test         = require('tape'),
-    cq           = require('..'),
-    Promise      = require('promise-polyfill')
+    cq           = require('..')
 
 test('processor throws error error', function (t) {
     t.plan(2)

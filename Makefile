@@ -18,13 +18,13 @@ npm-test: lint test coverage-check
 travis-test: lint test coverage-check
 	@(cat coverage/lcov.info | coveralls) || exit 0
 
-npm-coverage: coverage-report
+npm-coverage: coverage-report coverage-html-report
 ifdef npm_config_html
 	@make browse-coverage
 endif
 
 lint:
-	@$(BIN)/jshint --exclude '**/{coverage,node_modules}/*' **/*.js
+	@$(BIN)/eslint .
 
 test:
 	$(if $(npm_config_grep), @echo "Running test files that match pattern: $(npm_config_grep)\n",)
@@ -56,7 +56,7 @@ coverage-check: coverage
 	$(if $(npm_config_grep),,@if [ -s coverage/error ]; then echo; grep ERROR coverage/error; echo; exit 1; fi)
 
 coverage-report: coverage
-	@$(BIN)/istanbul report text | grep -v "Using reporter" | grep -v "Done"
+	@$(BIN)/istanbul report text #| grep -v "Using reporter" | grep -v "Done"
 
 coverage-html-report: coverage
 	@$(BIN)/istanbul report html > /dev/null

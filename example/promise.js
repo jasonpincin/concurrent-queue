@@ -8,6 +8,10 @@ var queue = cq().process({ concurrency: 2 }, function (task) {
     })
 })
 
-for (var i = 1; i <= 10; i++) queue('task '+i).then(function (task) {
+for (var i = 1; i <= 10; i++) queue('task ' + i).then(taskDone).catch(taskError)
+function taskDone (task) {
     console.log(task + ' done')
-})
+}
+function taskError (err) {
+    console.error(err)
+}
