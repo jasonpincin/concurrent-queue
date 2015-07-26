@@ -3,7 +3,6 @@
 [![NPM version](https://badge.fury.io/js/concurrent-queue.png)](http://badge.fury.io/js/concurrent-queue)
 [![Build Status](https://travis-ci.org/jasonpincin/concurrent-queue.svg?branch=master)](https://travis-ci.org/jasonpincin/concurrent-queue)
 [![Coverage Status](https://coveralls.io/repos/jasonpincin/concurrent-queue/badge.png?branch=master)](https://coveralls.io/r/jasonpincin/concurrent-queue?branch=master)
-[![Davis Dependency Status](https://david-dm.org/jasonpincin/concurrent-queue.png)](https://david-dm.org/jasonpincin/concurrent-queue)
 
 Fifo queue with concurrency control
 
