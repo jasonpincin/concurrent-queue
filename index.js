@@ -1,5 +1,4 @@
-var assign       = require('object-assign'),
-    assert       = require('assert'),
+var assert       = require('assert'),
     onerr        = require('on-error'),
     once         = require('once'),
     Promise      = require('promise-polyfill'),
@@ -67,7 +66,8 @@ module.exports = function () {
     })
 
     function drain() {
-        while (processor && pending.length > 0 && processing.length < concurrency) (function () {
+        while (processor && pending.length > 0 && processing.length < concurrency) drainItem()
+        function drainItem () {
             var item = pending.shift()
             processing.push(item)
 
@@ -90,7 +90,7 @@ module.exports = function () {
                 return reject(err)
             }
             if (p && typeof p.then === 'function') p.then(resolve, reject)
-        })()
+        }
     }
 
     return cq
