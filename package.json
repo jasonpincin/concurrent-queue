@@ -39,7 +39,6 @@
     "tape": "~4.0.1"
   },
   "dependencies": {
-    "object-assign": "~3.0.0",
     "on-error": "~2.0.2",
     "once": "~1.3.2",
     "promise-polyfill": "~2.0.2",
