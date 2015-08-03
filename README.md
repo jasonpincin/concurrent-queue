@@ -11,7 +11,7 @@ Fifo queue with concurrency control
 ```javascript
 var cq = require('concurrent-queue')
 
-var queue = cq().process({ concurrency: 2 }, function (task, cb) {
+var queue = cq().limit({ concurrency: 2 }).process(function (task, cb) {
     console.log(task + ' started')
     setTimeout(function () {
         cb(null, task)
@@ -28,7 +28,7 @@ or with promises:
 ```javascript
 var cq = require('concurrent-queue')
 
-var queue = cq().process({ concurrency: 2 }, function (task) {
+var queue = cq().limit({ concurrency: 2 }).process(function (task) {
     return new Promise(function (resolve, reject) {
         console.log(task + ' started')
         setTimeout(resolve.bind(undefined, task), 1000)
@@ -46,54 +46,71 @@ for (var i = 1; i <= 10; i++) queue('task '+i).then(function (task) {
 var cq = require('concurrent-queue')
 ```
 
-### var queue = cq(options)
+### var queue = cq()
 
 Create a queue. 
 
 ### queue(item [, cb])
 
-Push an item to the queue. Once the item has been processed, the optional callback will 
-be executed with arguments determined by the processor. 
+Push an item to the queue. Once the item has been processed, the optional callback will be executed with arguments determined by the processor. 
 
 Returns a promise that will be resolved or rejected once the item is processed.
 
-### queue.process([options, ] processor)
+### queue.process(processor)
 
-Configure the queue's `processor` function, to be invoked as concurrency allows with a queued item 
-to be acted upon.
+Configure the queue's `processor` function, to be invoked as concurrency allows with a queued item to be acted upon.
 
-The optional `options` argument should be an object. It may contain a `concurrency` property that 
-determines how many items in the queue will be processed concurrently. The default `concurrency` is 
-`Infinity`.
-
-The `processor` argument should be a function with signature `function (item [, cb])`.  If 
-the processor function signature included a callback, an error-first style callback will be passed 
-which should be executed upon completion. If no callback is provided in the function signature, and 
-the processor function returns a `Promise`, the item will be considered complete once the promise 
-is resolved/rejected. 
+The `processor` argument should be a function with signature `function (item [, cb])`.  If the processor function signature included a callback, an error-first style callback will be passed which should be executed upon completion. If no callback is provided in the function signature, and the processor function returns a `Promise`, the item will be considered complete once the promise is resolved/rejected. 
 
 This function returns a reference to `queue`.
 
-### queue.items
+### queue.limit(limitObj)
 
-An array of all queued items (both pending and processing).
+Set queue limits with a limits object. Valid limit properties are:
 
-### queue.processing
+* `concurrency` - (default: `Infinity`) - determine how many items in the queue will be processed concurrently
+* `maxSize` - (default: `Infinity`) - determine how many items may be pending in the queue before additional items are no longer accepted. When an item is added that would exceed this, the `callback` associated with the item will be invoked with an error and/or the `promise` returned by `queue()` will be rejected. 
 
-An array of items currently being processed.
+This function returns a reference to `queue`.
+
+### queue.enqueued(func)
+
+`enqueued` is an [eventuate](https://github.com/jasonpincin/eventuate). Use this to supply a function that will be executed when an item is added to the queue. The function will be passed the item that was added to the queue.
+
+### queue.started(func)
+
+`started` is an eventuate. Register a function to be executed once an item has transitioned from `queued` to `processing`. The function will be passed the item being processed.
+
+### queue.completed(func)
+
+`completed` is an eventuate. Register a function to be executed once processing of an item has completed. The function will be passed the item that was processed. 
+
+### queue.failed(func)
+
+`failed` is an eventuate. Register a function to be executed when a queue item results in an error, either through processing, or addition (when maxSize is exceed for example). The function will be passed an object with two properties: 
+
+* `err` - The error that occured
+* `item` - The queue item resulting in the error
+
+### queue.size
+
+A numeric value representing the number of items in queue, waiting to be processed.
 
 ### queue.pending
 
 An array of items waiting to be processed.
 
+### queue.processing
+
+An array of items currently being processed.
+
 ### queue.concurrency
 
-An integer property representing the number of concurrent queue items that will be processed. This 
-defaults to `Infinity`, but may be re-assigned. An integer value must be assigned to this property. 
-This property may also be set by passing an options object to the `process` function (above) and 
-specifying `concurrency` in that options object. To change concurrency after `process` is called, 
-the new value must be assigned to this property. Setting this property to `0` will halt the queue 
-(once all in-process items are complete), while setting it to `Infinity` removes all limits.
+An integer property representing the number of concurrent queue items that will be processed. This defaults to `Infinity`, but may be re-assigned. An integer value must be assigned to this property.  This property may also be set by calling the `limit()` function and passing an object with the `concurrency` property. Setting this property to `0` will halt the queue (once all in-process items are complete), while setting it to `Infinity` removes all limits.
+
+### queue.maxSize
+
+An integer property representing the maximum number of items that may be pending in the queue. This defaults to `Infinity`, but may be re-assigned. An integer value must be assigned to this property. This property may also be set by calling the `limit()` function and passing an object with the `maxSize` property. 
 
 
 ## testing
