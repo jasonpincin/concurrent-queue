@@ -24,7 +24,7 @@ ifdef npm_config_html
 endif
 
 lint:
-	@$(BIN)/eslint .
+	@$(BIN)/standard
 
 test:
 	$(if $(npm_config_grep), @echo "Running test files that match pattern: $(npm_config_grep)\n",)
