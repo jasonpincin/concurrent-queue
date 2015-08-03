@@ -12,7 +12,7 @@ test('push', function (t) {
         t.true(err, 'task 2 cb executed with error')
     })
     var promise = q('task 3')
-    t.equal(q.items.length, 3, 'items.length reflects total queue size')
+    t.equal(q.pending.length + q.processing.length, 3, 'items.length reflects total queue size')
     t.ok(promise.then && promise.catch, 'queue should return promise')
     promise.then(function (task) {
         t.equal(task, 'task 3', 'promise should resolve')

@@ -30,13 +30,13 @@ test('process (cb)', function (t) {
 
     setImmediate(function () {
 
-        t.equal(q.items.length, 0, 'tasks completed as queued with processor already defined')
+        t.equal(q.pending.length + q.processing.length, 0, 'tasks completed as queued with processor already defined')
     })
 })
 
 test('process (promise)', function (t) {
     t.plan(1)
-    var q = cq().process({ concurrency: 2 }, function (task) {
+    var q = cq().limit({ concurrency: 2 }).process(function (task) {
         return new Promise(function (resolve, reject) {
             resolve()
         })
@@ -47,6 +47,6 @@ test('process (promise)', function (t) {
         q('task 2'),
         q('task 3')
     ]).then(function () {
-        t.equal(q.items.length, 0, 'all tasks complete with promisy processor')
+        t.equal(q.pending.length + q.processing.length, 0, 'all tasks complete with promisy processor')
     })
 })
