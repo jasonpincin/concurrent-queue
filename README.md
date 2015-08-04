@@ -79,6 +79,13 @@ This function returns a reference to `queue`.
 
 * `item` - The queued item that is being processed
 
+### queue.rejected(func)
+
+`rejected` is an eventuate. Register a function to be executed when an item is rejected from the queue. This can happen, for example, when maxSize is exceeded. The function will be passed an object with the following properties:
+
+* `item` - The item that was rejected from the queue
+* `err` - An error containing the reason for rejection
+
 ### queue.processingStarted(func)
 
 `processingStarted` is an eventuate. Register a function to be executed once an item has transitioned from `pending` to `processing`. The function will be passed an object with the following properties:
