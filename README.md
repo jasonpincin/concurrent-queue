@@ -75,26 +75,34 @@ This function returns a reference to `queue`.
 
 ### queue.enqueued(func)
 
-`enqueued` is an [eventuate](https://github.com/jasonpincin/eventuate). Use this to supply a function that will be executed when an item is added to the queue. The function will be passed the item that was added to the queue.
+`enqueued` is an [eventuate](https://github.com/jasonpincin/eventuate). Use this to supply a function that will be executed when an item is added to the queue.  The function will be passed an object with the following properties:
 
-### queue.started(func)
+* `item` - The queued item that is being processed
 
-`started` is an eventuate. Register a function to be executed once an item has transitioned from `queued` to `processing`. The function will be passed the item being processed.
+### queue.processingStarted(func)
 
-### queue.completed(func)
+`processingStarted` is an eventuate. Register a function to be executed once an item has transitioned from `pending` to `processing`. The function will be passed an object with the following properties:
 
-`completed` is an eventuate. Register a function to be executed once processing of an item has completed. The function will be passed the item that was processed. 
+* `item` - The queued item that is being processed
 
-### queue.failed(func)
+### queue.processingEnded(func)
 
-`failed` is an eventuate. Register a function to be executed when a queue item results in an error, either through processing, or addition (when maxSize is exceed for example). The function will be passed an object with two properties: 
+`processingEnded` is an eventuate. Register a function to be executed once processing of an item has completed or failed. The function will be passed an object with the following properties:
 
-* `err` - The error that occured
-* `item` - The queue item resulting in the error
+* `item` - The queued item that was processed
+* `err` - Will be present if there was an error while processing the item
+
+### queue.drained(func)
+
+`drained` is an eventuate. Register a function to be executed each time the queue is fully drained (no items pending or processing).
 
 ### queue.size
 
 A numeric value representing the number of items in queue, waiting to be processed.
+
+### queue.isDrained
+
+A boolean value indicating whether the queue is in a drained state (no items pending or processing).
 
 ### queue.pending
 

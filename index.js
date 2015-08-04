@@ -11,6 +11,7 @@ module.exports = function () {
         processing  = [],
         maxSize     = Infinity,
         concurrency = Infinity,
+        drained     = true,
         processor
 
     function cq (task, cb) {
@@ -18,9 +19,10 @@ module.exports = function () {
         if (pending.length >= maxSize) {
             var err = new Error('max queue size exceeded')
             cb(err)
-            cq.failed.produce({ err: err, item: task })
+            cq.rejected.produce({ item: task, err: err })
             return Promise.reject(err)
         }
+        drained = false
         setImmediate(drain)
         return new Promise(function (resolve, reject) {
             pending.push({
@@ -28,15 +30,15 @@ module.exports = function () {
                 resolve: function (value) {
                     cb.apply(undefined, [null].concat(Array.prototype.slice.call(arguments, 0)))
                     resolve.apply(undefined, arguments)
-                    cq.completed.produce(task)
+                    cq.processingEnded.produce({ item: task })
                 },
                 reject: function (err) {
                     cb(err)
                     reject(err)
-                    cq.failed.produce({ err: err, item: task })
+                    cq.processingEnded.produce({ err: err, item: task })
                 }
             })
-            cq.enqueued.produce(task)
+            cq.enqueued.produce({ item: task })
         })
     }
     cq.limit = function (limits) {
@@ -55,13 +57,17 @@ module.exports = function () {
         return cq
     }
     cq.enqueued = eventuate()
-    cq.started = eventuate()
-    cq.completed = eventuate()
-    cq.failed = eventuate()
+    cq.rejected = eventuate()
+    cq.processingStarted = eventuate()
+    cq.processingEnded = eventuate()
+    cq.drained = eventuate()
 
     Object.defineProperties(cq, {
         size: { enumerable: true, get: function () {
             return pending.length
+        }},
+        isDrained: { enumerable: true, get: function () {
+            return drained
         }},
         pending: { enumerable: true, get: function () {
             return pending.map(function (item) {
@@ -91,11 +97,15 @@ module.exports = function () {
     })
 
     function drain () {
+        if (!drained && pending.length === 0 && processing.length === 0) {
+            drained = true
+            cq.drained.produce()
+        }
         while (processor && pending.length > 0 && processing.length < concurrency) drainItem()
         function drainItem () {
             var item = pending.shift()
             processing.push(item)
-            cq.started.produce(item.task)
+            cq.processingStarted.produce({ item: item.task })
 
             var reject = once(function reject (err) {
                 processing.splice(processing.indexOf(item), 1)

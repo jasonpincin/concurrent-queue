@@ -32,7 +32,6 @@
   "contributors": [],
   "devDependencies": {
     "@jasonpincin/standard": "~5.0.0-6",
-    "eslint": "~0.24.1",
     "istanbul": "~0.3.17",
     "opn": "~3.0.2",
     "tap-dot": "~1.0.0",

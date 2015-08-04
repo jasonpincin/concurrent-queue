@@ -3,7 +3,7 @@ var test = require('tape'),
 
 test('max size', function (t) {
     var q = cq()
-    t.plan(7)
+    t.plan(8)
 
     t.equal(q.maxSize, Infinity, 'returns default maxSize initially')
     q.maxSize = 5
@@ -17,8 +17,9 @@ test('max size', function (t) {
             cb(null, item)
         }, 10)
     })
-    q.failed(function (failed) {
-        t.equal(failed.item, 2, 'should get failed event when maxSize exceeded')
+    q.rejected(function (rejected) {
+        t.equal(rejected.item, 2, 'should get a rejected message with the item when max size is exceeded')
+        t.true(rejected.err, 'should get a rejected message with an error when max size exceeded')
     })
 
     q(1, function (err, result) {
