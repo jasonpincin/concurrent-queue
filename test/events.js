@@ -64,8 +64,6 @@ test('drained event', function (t) {
 
     function seedQueue () {
         var numbers = [1, 9, 3, 0, 8, 4, 7, 2, 5, 6]
-        numbers.forEach(function (num) {
-            q(num)
-        })
+        numbers.forEach(q)
     }
 })
