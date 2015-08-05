@@ -41,27 +41,6 @@ module.exports = function () {
             cq.enqueued.produce({ item: task })
         })
     }
-    cq.limit = function (limits) {
-        limits = assign({ concurrency: Infinity, maxSize: Infinity }, limits)
-        assert(typeof limits.maxSize === 'number', 'maxSize must be a number')
-        assert(typeof limits.concurrency === 'number', 'concurrency must be a number')
-        maxSize = limits.maxSize
-        concurrency = limits.concurrency
-        return cq
-    }
-    cq.process = function (func) {
-        assert(typeof func === 'function', 'process requires a processor function')
-        assert(!processor, 'queue processor already defined')
-        processor = func
-        setImmediate(drain)
-        return cq
-    }
-    cq.enqueued = eventuate()
-    cq.rejected = eventuate()
-    cq.processingStarted = eventuate()
-    cq.processingEnded = eventuate()
-    cq.drained = eventuate()
-
     Object.defineProperties(cq, {
         size: { enumerable: true, get: function () {
             return pending.length
@@ -93,7 +72,27 @@ module.exports = function () {
         }},
         processor: { get: function () {
             return processor
-        }}
+        }},
+        limit: { value: function (limits) {
+            limits = assign({ concurrency: Infinity, maxSize: Infinity }, limits)
+            assert(typeof limits.maxSize === 'number', 'maxSize must be a number')
+            assert(typeof limits.concurrency === 'number', 'concurrency must be a number')
+            maxSize = limits.maxSize
+            concurrency = limits.concurrency
+            return cq
+        }},
+        process: { value: function (func) {
+            assert(typeof func === 'function', 'process requires a processor function')
+            assert(!processor, 'queue processor already defined')
+            processor = func
+            setImmediate(drain)
+            return cq
+        }},
+        enqueued: { value: eventuate() },
+        rejected: { value: eventuate() },
+        processingStarted: { value: eventuate() },
+        processingEnded: { value: eventuate() },
+        drained: { value: eventuate() }
     })
 
     function drain () {
