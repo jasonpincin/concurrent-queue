@@ -15,7 +15,7 @@ module.exports = function () {
         processor
 
     function cq (task, cb) {
-        cb = cb || function () {}
+        cb = typeof cb === 'function' ? cb : function () {}
         if (pending.length >= maxSize) {
             var err = new Error('max queue size exceeded')
             cb(err)
