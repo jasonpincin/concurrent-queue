@@ -3,7 +3,7 @@ var test = require('tape'),
 
 test('max size', function (t) {
     var q = cq()
-    t.plan(8)
+    t.plan(9)
 
     t.equal(q.maxSize, Infinity, 'returns default maxSize initially')
     q.maxSize = 5
@@ -28,5 +28,6 @@ test('max size', function (t) {
     })
     q(2, function (err, result) {
         t.true(err, 'queue supplies error when maxSize exceeded')
+        t.ok(err instanceof cq.MaxSizeExceededError, 'should throw the proper error type')
     })
 })

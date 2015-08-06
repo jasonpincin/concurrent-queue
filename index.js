@@ -4,7 +4,8 @@ var assert       = require('assert'),
     eventuate    = require('eventuate'),
     once         = require('once'),
     Promise      = require('promise-polyfill'),
-    setImmediate = require('set-immediate-shim')
+    setImmediate = require('set-immediate-shim'),
+    errors       = require('./lib/errors')
 
 module.exports = function () {
     var pending     = [],
@@ -17,7 +18,7 @@ module.exports = function () {
     function cq (task, cb) {
         cb = typeof cb === 'function' ? cb : function () {}
         if (pending.length >= maxSize) {
-            var err = new Error('max queue size exceeded')
+            var err = new errors.MaxSizeExceededError('unable to queue item')
             cb(err)
             cq.rejected.produce({ item: task, err: err })
             return Promise.reject(err)
@@ -130,3 +131,5 @@ module.exports = function () {
 
     return cq
 }
+
+assign(module.exports, errors)
