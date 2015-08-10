@@ -33,7 +33,7 @@
   "devDependencies": {
     "@jasonpincin/standard": "~5.0.0-6",
     "istanbul": "~0.3.17",
-    "opn": "~3.0.2",
+    "opn": "~1.0.2",
     "tap-dot": "~1.0.0",
     "tap-spec": "~4.0.2",
     "tape": "~4.0.2"
