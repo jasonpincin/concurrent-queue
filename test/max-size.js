@@ -1,5 +1,6 @@
-var test = require('tape'),
-    cq   = require('..')
+var test   = require('tape'),
+    cq     = require('..'),
+    errors = require('../errors')
 
 test('max size', function (t) {
     var q = cq()
@@ -28,6 +29,6 @@ test('max size', function (t) {
     })
     q(2, function (err, result) {
         t.true(err, 'queue supplies error when maxSize exceeded')
-        t.ok(err instanceof cq.MaxSizeExceededError, 'should throw the proper error type')
+        t.ok(err instanceof errors.MaxSizeExceededError, 'should throw the proper error type')
     })
 })

@@ -39,6 +39,7 @@
     "tape": "~4.0.2"
   },
   "dependencies": {
+    "define-error": "~1.0.0",
     "eventuate": "~3.0.0",
     "object-assign": "~3.0.0",
     "on-error": "~2.1.0",
