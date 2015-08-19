@@ -22,7 +22,9 @@ test('process (cb)', function (t) {
 
     t.throws(q.process, 'process requires a processor function')
     t.equal(q.process(processor), q, 'process returns reference to queue')
-    t.throws(q.process.bind(null, processor), 'only one processor function may be defined')
+    t.throws(function () {
+        q.process(processor)
+    }, 'only one processor function may be defined')
 
     q('task 1')
     q('task 2')
