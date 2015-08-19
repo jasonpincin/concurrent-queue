@@ -1,4 +1,4 @@
-.PHONY: help clean coverage-check browse-coverage coverage-report coverage-html-report test test-tap test-dot test-spec npm-test travis-test
+.PHONY: help clean coverage-check browse-coverage coverage-report coverage-html-report test test-tap test-dot test-spec npm-test travis-test browser-test
 
 BIN = ./node_modules/.bin
 
@@ -7,16 +7,31 @@ all: lint test coverage-html-report coverage-report coverage-check
 help:
 	@echo
 	@echo "To run tests:"
-	@echo "  npm test [--dot | --spec] [--grep=<test file pattern>]"
+	@echo "  npm test [--dot | --spec] [--phantom] [--grep=<test file pattern>]"
+	@echo
+	@echo "To run tests in all browsers:"
+	@echo "  npm run browser-test"
 	@echo
 	@echo "To see coverage:"
 	@echo "  npm run coverage [--html]"
 	@echo
 
-npm-test: lint test coverage-check
+npm-test: 
+ifdef npm_config_grep
+	@make lint test
+else
+ifdef npm_config_phantom
+	@make lint test
+else
+	@make lint test coverage-check
+endif
+endif
 
 travis-test: lint test coverage-check
 	@(cat coverage/lcov.info | coveralls) || exit 0
+
+browser-test:
+	@$(BIN)/zuul -- test/*.js
 
 npm-coverage: coverage-report coverage-html-report
 ifdef npm_config_html
@@ -39,7 +54,11 @@ endif
 endif
 
 test-tap:
+ifdef npm_config_phantom
+	@find ./test -maxdepth 1 -name "*.js" -type f | grep ""$(npm_config_grep) | xargs $(BIN)/zuul --phantom --
+else
 	@find ./test -maxdepth 1 -name "*.js" -type f | grep ""$(npm_config_grep) | xargs $(BIN)/istanbul cover --report lcovonly --print none $(BIN)/tape --
+endif
 
 test-dot:
 	@make test-tap | $(BIN)/tap-dot
@@ -56,7 +75,7 @@ coverage-check: coverage
 	$(if $(npm_config_grep),,@if [ -s coverage/error ]; then echo; grep ERROR coverage/error; echo; exit 1; fi)
 
 coverage-report: coverage
-	@$(BIN)/istanbul report text #| grep -v "Using reporter" | grep -v "Done"
+	@$(BIN)/istanbul report text
 
 coverage-html-report: coverage
 	@$(BIN)/istanbul report html > /dev/null

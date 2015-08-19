@@ -3,10 +3,6 @@
   "version": "6.1.1",
   "description": "Fifo queue with concurrency control",
   "main": "index.js",
-  "scripts": {
-    "test": "make npm-test",
-    "coverage": "make npm-coverage"
-  },
   "repository": {
     "type": "git",
     "url": "git://github.com/jasonpincin/concurrent-queue.git"
@@ -31,12 +27,14 @@
   },
   "contributors": [],
   "devDependencies": {
-    "@jasonpincin/standard": "~5.0.0-6",
+    "@jasonpincin/standard": "~5.0.0-7",
     "istanbul": "~0.3.17",
     "opn": "~1.0.2",
     "tap-dot": "~1.0.0",
     "tap-spec": "~4.0.2",
-    "tape": "~4.0.2"
+    "tape": "~4.1.0",
+    "phantomjs": "~1.9.18",
+    "zuul": "~3.2.0"
   },
   "dependencies": {
     "define-error": "~1.0.0",
@@ -46,5 +44,10 @@
     "once": "~1.3.2",
     "promise-polyfill": "~2.1.0",
     "set-immediate-shim": "~1.0.1"
+  },
+  "scripts": {
+    "test": "make npm-test",
+    "coverage": "make npm-coverage",
+    "browser-test": "make browser-test"
   }
 }
