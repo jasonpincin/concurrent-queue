@@ -4,8 +4,8 @@ var assert       = require('assert'),
     eventuate    = require('eventuate'),
     once         = require('once'),
     Promise      = require('promise-polyfill'),
-    setImmediate = require('set-immediate-shim'),
-    errors       = require('./errors')
+    errors       = require('./errors'),
+    setImmediate = typeof setImmediate === 'function' ? setImmediate : process.nextTick
 
 module.exports = function () {
     var pending     = [],

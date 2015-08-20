@@ -1,7 +1,7 @@
 var test         = require('tape'),
     cq           = require('..'),
     Promise      = require('promise-polyfill'),
-    setImmediate = require('set-immediate-shim')
+    setImmediate = typeof setImmediate === 'function' ? setImmediate : process.nextTick
 
 test('processor', function (t) {
     t.plan(1)
