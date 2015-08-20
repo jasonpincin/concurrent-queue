@@ -128,13 +128,13 @@ An integer property representing the number of concurrent queue items that will 
 
 An integer property representing the maximum number of items that may be pending in the queue. This defaults to `Infinity`, but may be re-assigned. An integer value must be assigned to this property. This property may also be set by calling the `limit()` function and passing an object with the `maxSize` property. 
 
-### cq.MaxSizeExceededError
+### var MaxSizeExceededError = require('concurrent-queue/errors').MaxSizeExceededError
 
 The constructor for a MaxSizeExceededError. This is supplied to the callback and/or promise rejection when an item cannot be queued due to `queue.maxSize` constraints.  Example:
 
 ```javascript
 var cq                   = require('concurrent-queue'),
-    MaxSizeExceededError = cq.MaxSizeExceededError
+    MaxSizeExceededError = require('concurrent-queue/errors').MaxSizeExceededError
 
 queue = cq().limit({ maxSize: 100, concurrency: 1 }).process(function (item, cb) {
     // do something
