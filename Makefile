@@ -27,7 +27,7 @@ else
 endif
 endif
 
-travis-test: lint test coverage-check
+travis-test: lint test
 	@(cat coverage/lcov.info | coveralls) || exit 0
 
 browser-test:
