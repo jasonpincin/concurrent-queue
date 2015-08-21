@@ -1,6 +1,6 @@
 var test         = require('tape'),
     cq           = require('..'),
-    setImmediate = typeof setImmediate === 'function' ? setImmediate : process.nextTick
+    setImmediate = require('timers').setImmediate
 
 function processorImmediate (task, cb) {
     cb()

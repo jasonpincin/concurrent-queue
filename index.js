@@ -5,7 +5,7 @@ var assert       = require('assert'),
     once         = require('once'),
     Promise      = require('promise-polyfill'),
     errors       = require('./errors'),
-    setImmediate = typeof setImmediate === 'function' ? setImmediate : process.nextTick
+    setImmediate = require('timers').setImmediate
 
 module.exports = function () {
     var pending     = [],
