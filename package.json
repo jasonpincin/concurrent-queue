@@ -37,6 +37,7 @@
     "zuul": "~3.3.0"
   },
   "dependencies": {
+    "afterward": "~2.0.0",
     "define-error": "~1.0.0",
     "eventuate": "~4.0.0",
     "object-assign": "~4.0.1",

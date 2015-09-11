@@ -4,6 +4,7 @@ var assert               = require('assert'),
     eventuate            = require('eventuate'),
     once                 = require('once'),
     Promise              = require('promise-polyfill'),
+    after                = require('afterward'),
     setImmediate         = require('timers').setImmediate,
     MaxSizeExceededError = require('./errors').MaxSizeExceededError
 
@@ -16,16 +17,15 @@ module.exports = function () {
         processor
 
     function cq (item, cb) {
-        cb = typeof cb === 'function' ? cb : function () {}
-        if (pending.length >= maxSize) {
-            var err = new MaxSizeExceededError('unable to queue item')
-            cb(err)
-            cq.rejected.produce({ item: item, err: err })
-            return Promise.reject(err)
-        }
-        drained = false
-        setImmediate(drain)
-        return new Promise(function (resolve, reject) {
+        var done = new Promise(function (resolve, reject) {
+            if (pending.length >= maxSize) {
+                var err = new MaxSizeExceededError('unable to queue item')
+                reject(err)
+                return cq.rejected.produce({ item: item, err: err })
+            }
+
+            drained = false
+            setImmediate(drain)
             pending.push({
                 item   : item,
                 resolve: onResolve,
@@ -34,17 +34,17 @@ module.exports = function () {
             cq.enqueued.produce({ item: item })
 
             function onResolve (value) {
-                cb(null, value)
                 resolve(value)
                 cq.processingEnded.produce({ item: item })
             }
 
             function onReject (err) {
-                cb(err)
                 reject(err)
                 cq.processingEnded.produce({ err: err, item: item })
             }
         })
+
+        return after(done, cb)
     }
     Object.defineProperties(cq, {
         size             : { get: getSize, enumerable: true },
