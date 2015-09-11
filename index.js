@@ -1,11 +1,11 @@
-var assert       = require('assert'),
-    assign       = require('object-assign'),
-    onerr        = require('on-error'),
-    eventuate    = require('eventuate'),
-    once         = require('once'),
-    Promise      = require('promise-polyfill'),
-    errors       = require('./errors'),
-    setImmediate = require('timers').setImmediate
+var assert               = require('assert'),
+    assign               = require('object-assign'),
+    onerr                = require('on-error'),
+    eventuate            = require('eventuate'),
+    once                 = require('once'),
+    Promise              = require('promise-polyfill'),
+    setImmediate         = require('timers').setImmediate,
+    MaxSizeExceededError = require('./errors').MaxSizeExceededError
 
 module.exports = function () {
     var pending     = [],
@@ -27,74 +27,43 @@ module.exports = function () {
         setImmediate(drain)
         return new Promise(function (resolve, reject) {
             pending.push({
-                item: item,
-                resolve: function (value) {
-                    cb.apply(undefined, [null].concat(Array.prototype.slice.call(arguments, 0)))
-                    resolve.apply(undefined, arguments)
-                    cq.processingEnded.produce({ item: item })
-                },
-                reject: function (err) {
-                    cb(err)
-                    reject(err)
-                    cq.processingEnded.produce({ err: err, item: item })
-                }
+                item   : item,
+                resolve: onResolve,
+                reject : onReject
             })
             cq.enqueued.produce({ item: item })
+
+            function onResolve (value) {
+                cb(null, value)
+                resolve(value)
+                cq.processingEnded.produce({ item: item })
+            }
+
+            function onReject (err) {
+                cb(err)
+                reject(err)
+                cq.processingEnded.produce({ err: err, item: item })
+            }
         })
     }
     Object.defineProperties(cq, {
-        size: { enumerable: true, get: function () {
-            return pending.length
-        }},
-        isDrained: { enumerable: true, get: function () {
-            return drained
-        }},
-        pending: { enumerable: true, get: function () {
-            return pending.map(function (task) {
-                return task.item
-            })
-        }},
-        processing: { enumerable: true, get: function () {
-            return processing.map(function (task) {
-                return task.item
-            })
-        }},
-        concurrency: { enumerable: true, get: function () {
-            return concurrency
-        }, set: function (value) {
-            if (typeof value !== 'number') throw new TypeError('concurrency must be a number')
-            concurrency = value
-        }},
-        maxSize: { enumerable: true, get: function () {
-            return maxSize
-        }, set: function (value) {
-            if (typeof value !== 'number') throw new TypeError('maxSize must be a number')
-            maxSize = value
-        }},
-        processor: { get: function () {
-            return processor
-        }},
-        limit: { value: function (limits) {
-            limits = assign({ concurrency: Infinity, maxSize: Infinity }, limits)
-            assert(typeof limits.maxSize === 'number', 'maxSize must be a number')
-            assert(typeof limits.concurrency === 'number', 'concurrency must be a number')
-            maxSize = limits.maxSize
-            concurrency = limits.concurrency
-            return cq
-        }},
-        process: { value: function (func) {
-            assert(typeof func === 'function', 'process requires a processor function')
-            assert(!processor, 'queue processor already defined')
-            processor = func
-            setImmediate(drain)
-            return cq
-        }},
-        enqueued: { value: eventuate() },
-        rejected: { value: eventuate() },
+        size             : { get: getSize, enumerable: true },
+        isDrained        : { get: getIsDrained, enumerable: true },
+        pending          : { get: getPending, enumerable: true },
+        processing       : { get: getProcessing, enumerable: true },
+        concurrency      : { get: getConcurrency, set: setConcurrency, enumerable: true },
+        maxSize          : { get: getMaxSize, set: setMaxSize, enumerable: true },
+        processor        : { get: getProcessor },
+        limit            : { value: limit },
+        process          : { value: process },
+        enqueued         : { value: eventuate() },
+        rejected         : { value: eventuate() },
         processingStarted: { value: eventuate() },
-        processingEnded: { value: eventuate() },
-        drained: { value: eventuate() }
+        processingEnded  : { value: eventuate() },
+        drained          : { value: eventuate() }
     })
+
+    return cq
 
     function drain () {
         if (!drained && pending.length === 0 && processing.length === 0) {
@@ -129,7 +98,62 @@ module.exports = function () {
         }
     }
 
-    return cq
-}
+    function getSize () {
+        return pending.length
+    }
 
-var MaxSizeExceededError = errors.MaxSizeExceededError
+    function getIsDrained () {
+        return drained
+    }
+
+    function getPending () {
+        return pending.map(function (task) {
+            return task.item
+        })
+    }
+
+    function getProcessing () {
+        return processing.map(function (task) {
+            return task.item
+        })
+    }
+
+    function getConcurrency () {
+        return concurrency
+    }
+
+    function setConcurrency (value) {
+        if (typeof value !== 'number') throw new TypeError('concurrency must be a number')
+        concurrency = value
+    }
+
+    function getMaxSize () {
+        return maxSize
+    }
+
+    function setMaxSize (value) {
+        if (typeof value !== 'number') throw new TypeError('maxSize must be a number')
+        maxSize = value
+    }
+
+    function getProcessor () {
+        return processor
+    }
+
+    function limit (limits) {
+        limits = assign({ concurrency: Infinity, maxSize: Infinity }, limits)
+        assert(typeof limits.maxSize === 'number', 'maxSize must be a number')
+        assert(typeof limits.concurrency === 'number', 'concurrency must be a number')
+        maxSize = limits.maxSize
+        concurrency = limits.concurrency
+        return cq
+    }
+
+    function process (func) {
+        assert(typeof func === 'function', 'process requires a processor function')
+        assert(!processor, 'queue processor already defined')
+        processor = func
+        setImmediate(drain)
+        return cq
+    }
+}

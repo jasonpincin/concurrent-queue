@@ -27,7 +27,7 @@
   },
   "contributors": [],
   "devDependencies": {
-    "@jasonpincin/standard": "~5.0.0-7",
+    "@jasonpincin/standard": "~5.0.0-8",
     "istanbul": "~0.3.17",
     "opn": "~1.0.2",
     "phantomjs": "~1.9.18",
