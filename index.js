@@ -12,6 +12,7 @@ module.exports = function () {
     var pending     = [],
         processing  = [],
         maxSize     = Infinity,
+        softMaxSize = Infinity,
         concurrency = Infinity,
         drained     = true,
         processor
@@ -23,6 +24,7 @@ module.exports = function () {
                 reject(err)
                 return cq.rejected.produce({ item: item, err: err })
             }
+            if (pending.length > softMaxSize) cq.softLimitReached.produce({ size: pending.length })
 
             drained = false
             setImmediate(drain)
@@ -35,12 +37,12 @@ module.exports = function () {
 
             function onResolve (value) {
                 resolve(value)
-                cq.processingEnded.produce({ item: item })
+                cq.processingEnded.produce({ item: item, result: value })
             }
 
             function onReject (err) {
                 reject(err)
-                cq.processingEnded.produce({ err: err, item: item })
+                cq.processingEnded.produce({ item: item, err: err })
             }
         })
 
@@ -53,6 +55,7 @@ module.exports = function () {
         processing       : { get: getProcessing, enumerable: true },
         concurrency      : { get: getConcurrency, set: setConcurrency, enumerable: true },
         maxSize          : { get: getMaxSize, set: setMaxSize, enumerable: true },
+        softMaxSize      : { get: getSoftMaxSize, set: setSoftMaxSize, enumerable: true },
         processor        : { get: getProcessor },
         limit            : { value: limit },
         process          : { value: process },
@@ -134,6 +137,15 @@ module.exports = function () {
     function setMaxSize (value) {
         if (typeof value !== 'number') throw new TypeError('maxSize must be a number')
         maxSize = value
+    }
+
+    function getSoftMaxSize () {
+        return softMaxSize
+    }
+
+    function setSoftMaxSize (value) {
+        if (typeof value !== 'number') throw new TypeError('softMaxSize must be a number')
+        softMaxSize = value
     }
 
     function getProcessor () {
