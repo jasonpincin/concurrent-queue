@@ -61,6 +61,7 @@ module.exports = function () {
         process          : { value: process },
         enqueued         : { value: eventuate() },
         rejected         : { value: eventuate() },
+        softLimitReached : { value: eventuate() },
         processingStarted: { value: eventuate() },
         processingEnded  : { value: eventuate() },
         drained          : { value: eventuate() }
