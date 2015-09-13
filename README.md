@@ -71,6 +71,7 @@ Set queue limits with a limits object. Valid limit properties are:
 
 * `concurrency` - (default: `Infinity`) - determine how many items in the queue will be processed concurrently
 * `maxSize` - (default: `Infinity`) - determine how many items may be pending in the queue before additional items are no longer accepted. When an item is added that would exceed this, the `callback` associated with the item will be invoked with an error and/or the `promise` returned by `queue()` will be rejected. 
+* `softMaxSize` - (default: `Infinity`) - determine how many items may be pending before the queue begins producing warnings on the `softLimitReached` eventuate property.
 
 This function returns a reference to `queue`.
 
@@ -86,6 +87,12 @@ This function returns a reference to `queue`.
 
 * `item` - The item that was rejected from the queue
 * `err` - An error containing the reason for rejection
+
+### queue.softLimitReached(func)
+
+`softLimitReached` is an eventuate. Register a function to be executed when the configured soft size limit has been reached or exceeded. This function will be executed any time an item is added to the `queue` when the `queue.limit` meets or exceeds the `softMaxSize` value. The function will be passed an object with the following properties:
+
+* `size` - the `queue.size`
 
 ### queue.processingStarted(func)
 
@@ -127,6 +134,10 @@ An integer property representing the number of concurrent queue items that will 
 ### queue.maxSize
 
 An integer property representing the maximum number of items that may be pending in the queue. This defaults to `Infinity`, but may be re-assigned. An integer value must be assigned to this property. This property may also be set by calling the `limit()` function and passing an object with the `maxSize` property. 
+
+### queue.softMaxSize
+
+An integer property representing the maximum number of items that may be pending in the queue before warnings are produced. This defaults to `Infinity`, but may be re-assigned. An integer value must be assigned to this property. This property may also be set by calling the `limit()` function and passing an object with the `softMaxSize` property. 
 
 ### errors
 
