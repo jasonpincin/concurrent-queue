@@ -24,7 +24,7 @@ module.exports = function () {
                 reject(err)
                 return cq.rejected.produce({ item: item, err: err })
             }
-            if (pending.length > softMaxSize) cq.softLimitReached.produce({ size: pending.length })
+            if (pending.length >= softMaxSize) cq.softLimitReached.produce({ size: pending.length })
 
             drained = false
             setImmediate(drain)
@@ -102,6 +102,25 @@ module.exports = function () {
         }
     }
 
+    function process (func) {
+        if (typeof func !== 'function') throw new TypeError('process requires a processor function')
+        assert(!processor, 'queue processor already defined')
+        processor = func
+        setImmediate(drain)
+        return cq
+    }
+
+    function limit (limits) {
+        limits = assign({ concurrency: Infinity, maxSize: Infinity, softMaxSize: Infinity }, limits)
+        if (typeof limits.maxSize !== 'number') throw new TypeError('maxSize must be a number')
+        if (typeof limits.softMaxSize !== 'number') throw new TypeError('softMaxSize must be a number')
+        if (typeof limits.concurrency !== 'number') throw new TypeError('concurrency must be a number')
+        maxSize = limits.maxSize
+        softMaxSize = limits.softMaxSize
+        concurrency = limits.concurrency
+        return cq
+    }
+
     function getSize () {
         return pending.length
     }
@@ -151,22 +170,5 @@ module.exports = function () {
 
     function getProcessor () {
         return processor
-    }
-
-    function limit (limits) {
-        limits = assign({ concurrency: Infinity, maxSize: Infinity }, limits)
-        assert(typeof limits.maxSize === 'number', 'maxSize must be a number')
-        assert(typeof limits.concurrency === 'number', 'concurrency must be a number')
-        maxSize = limits.maxSize
-        concurrency = limits.concurrency
-        return cq
-    }
-
-    function process (func) {
-        assert(typeof func === 'function', 'process requires a processor function')
-        assert(!processor, 'queue processor already defined')
-        processor = func
-        setImmediate(drain)
-        return cq
     }
 }
