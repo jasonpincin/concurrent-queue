@@ -123,6 +123,11 @@ A boolean value indicating whether the queue is in a drained state (no items pen
 
 An array of items waiting to be processed.
 
+### queue.processor
+
+The processor function is one has been configured via `queue.process()`,
+otherwise `undefined`. This is a read-only (getter) property. 
+
 ### queue.processing
 
 An array of items currently being processed.
